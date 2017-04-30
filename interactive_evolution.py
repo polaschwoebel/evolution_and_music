@@ -1,4 +1,7 @@
 import random
+import os
+import pyglet
+
 
 class Genome():
 
@@ -23,23 +26,17 @@ class Genome():
         # TODO: decide how to mutate the chromosome properly
         self.chromosome[random.randint(0, 9)] = random.randint(0, 1)
 
-    # Return the phenotype
-    def getPhenotype(self):
-        # TODO: decide what the phenotype should be
-        # - probably play the piece using PD
-        return "".join(['a' if c == 0 else 'A' for c in self.chromosome])
-
-
-class GeneticAlgorithm():
+class interactive_evolution():
 
     # Initialise the genetic algorithm with some default values
     # Create the population of genomes with random chromosomes
-    def __init__(self, POPULATION_SIZE = 10, ELITISM_PERCENTAGE = 20, MUTATION_PERCENTAGE = 15, interactive_evolution=True):
+    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=15, MAX_GENERATION=5):
         self.population = [Genome(randomizeChr=True) for _ in range(POPULATION_SIZE)]
         self.ELITISM_PERCENTAGE = ELITISM_PERCENTAGE
         self.MUTATION_PERCENTAGE = MUTATION_PERCENTAGE
         self.fittest = [0, 0]
-        self.interactive_evolution = interactive_evolution
+        self.MAX_GENERATION = MAX_GENERATION
+        self.curr_generation = 0
         self.executeEvolution()
 
     # Run the evolution cycle
@@ -47,26 +44,44 @@ class GeneticAlgorithm():
         print("Starting evolution...")
         while(self.continueEvolution()):
             self.generateStatistics()
-            self.reproducePopulation(interactive_evolution=self.interactive_evolution)
+            self.reproducePopulation()
         self.generateStatistics()
         print("Finished evolution")
 
     # Print info about the generation
     def generateStatistics(self):
         # TODO
-        print("Fittest value in generation: " + str(self.fittest))
+        print("Fittest individuals in generation: " + str(self.fittest))
 
-    # Determines whether we have reached peak fitness
+
+    # Return the phenotype
+    def getPhenotypes(self):
+        files = os.listdir("examples")
+        # ATTENTION on file order! make sure file<->genotype indes
+        for file in files:
+            if file.endswith('.wav'):
+                music = pyglet.resource.media('examples/' + file)
+                music.play()
+                # foo.duration is the song length
+                pyglet.clock.schedule_once(exiter, music.duration)
+                pyglet.app.run()
+        return
+
+
+    def evaluate_fitness(self):
+        self.getPhenotypes()
+        best_1 = int(input('Which piece sounded best?'))
+        best_2 = int(input('Which second piece did you like?'))
+        self.fittest = [best_1, best_2]
+
+
+    # evaluates fitness and checks whether max generations are reached
     def continueEvolution(self):
-        # TODO: Decide how to know when to stop evolution
         self.fittest = [0,0]
-        for individual in self.population:
-            individual.fitness = individual.getPhenotype().count('a')
-            if individual.fitness > self.fittest[0]:
-                self.fittest = [individual.fitness, individual.getPhenotype()]
-
-            if individual.fitness == 10:
-                return False
+        self.evaluate_fitness()
+        self.curr_generation += 1
+        if self.curr_generation == self.MAX_GENERATION:
+            return False
         return True
 
     # Container function for the reproduction methods
@@ -77,10 +92,7 @@ class GeneticAlgorithm():
 
     # Choose which of the population to reproduce and return the offspring
     def selectAndReproduce(self):
-        # TODO: Decide how to choose the parents
-        offspring = list()
-        for i in range(0, len(self.population), 2):
-            offspring.extend(self.reproduce(self.population[i], self.population[i+1]))
+        offspring = self.reproduce(self.population[self.fittest[0]], self.population[self.fittest[1]])
         return offspring
 
     # Reproduce the parents and return offspring
@@ -95,6 +107,7 @@ class GeneticAlgorithm():
     # Replaces some of the existing population with the offspring
     def replacePopulation(self, offspring):
         # TODO: Decide how to choose the members of the population to be replaced
+        # - probably "randomly"/as is in interactive setting d
         numOffspring = len(offspring)
         self.population = self.population[:-numOffspring] + offspring
 
@@ -112,5 +125,14 @@ class GeneticAlgorithm():
         return False
 
 
+# helper for pyglet (i.o. to play snippets)
+def exiter(dt):
+    pyglet.app.exit()
 
-g = GeneticAlgorithm()
+
+def main():
+    ia = interactive_evolution()
+
+
+if __name__ == main():
+    main()
