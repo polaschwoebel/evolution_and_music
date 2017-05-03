@@ -10,8 +10,7 @@ class Genome():
         self.fitness = 0
         self.chromosome = [0] * CHROMOSOME_SIZE
         if randomizeChr:
-            # TODO: decide on possible chromosome values
-            self.chromosome = [random.randint(0, 1) for c in self.chromosome]
+            self.chromosome = [random.randint(0, 128) for c in self.chromosome]
 
     # Override the comparison function
     def __eq__(self, other):
@@ -50,22 +49,33 @@ class interactive_evolution():
 
     # Print info about the generation
     def generateStatistics(self):
+        self.write_population_to_file()
         # TODO
         print("Fittest individuals in generation: " + str(self.fittest))
 
+    # Helper function to write genotypes to file
+    def write_population_to_file(self):
+        with open("genotypes/individuals.txt", "w") as file:
+            for i, individual in enumerate(self.population):
+                file.write(' '.join([str(char) for char in individual.chromosome]) + '\n')
+        return
 
     # Return the phenotype
-    def getPhenotypes(self):
-        files = os.listdir("examples")
-        # ATTENTION on file order! make sure file<->genotype indes
-        for file in files:
-            if file.endswith('.wav'):
-                music = pyglet.resource.media('examples/' + file)
-                music.play()
-                # foo.duration is the song length
-                pyglet.clock.schedule_once(exiter, music.duration)
-                pyglet.app.run()
-        return
+    def getPhenotypes(self, read_from_file=False):
+        if read_from_file:
+            files = os.listdir("examples")
+            # ATTENTION on file order! make sure file<->genotype indes
+            for file in files:
+                if file.endswith('.wav'):
+                    music = pyglet.resource.media('examples/' + file)
+                    music.play()
+                    # foo.duration is the song length
+                    pyglet.clock.schedule_once(exiter, music.duration)
+                    pyglet.app.run()
+            return
+        else:
+            print('Play phenotypes externally.')
+            return
 
 
     def evaluate_fitness(self):
@@ -107,7 +117,7 @@ class interactive_evolution():
     # Replaces some of the existing population with the offspring
     def replacePopulation(self, offspring):
         # TODO: Decide how to choose the members of the population to be replaced
-        # - probably "randomly"/as is in interactive setting d
+        # - probably "randomly"/as is in non-interactive setting
         numOffspring = len(offspring)
         self.population = self.population[:-numOffspring] + offspring
 
