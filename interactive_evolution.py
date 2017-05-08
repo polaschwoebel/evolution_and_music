@@ -1,6 +1,8 @@
 import random
 import os
 import pyglet
+from send_to_pd import send2port
+import time
 
 
 class Genome():
@@ -74,7 +76,10 @@ class interactive_evolution():
                     pyglet.app.run()
             return
         else:
-            print('Play phenotypes externally.')
+            print('Sending genotypes to PD to be played.')
+            for individual in self.population:
+                send2port(' '.join([str(char) for char in individual.chromosome]))
+                time.sleep(3)
             return
 
 
