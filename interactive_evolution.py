@@ -79,7 +79,7 @@ class interactive_evolution():
             print('Sending genotypes to PD to be played.')
             for individual in self.population:
                 send2port(' '.join([str(char) for char in individual.chromosome]))
-                time.sleep(3)
+                time.sleep(5)
             return
 
 
