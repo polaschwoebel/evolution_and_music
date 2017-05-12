@@ -1,14 +1,14 @@
 import random
 import os
 import pyglet
-from send_to_pd import send2port, send2port_socket
+from send_to_pd import send2port, send2port_socket_other
 import time
 
 
 class Genome():
 
     # Initialise the genome (possibly as random chromosomes)
-    def __init__(self, CHROMOSOME_SIZE=10, randomizeChr=False):
+    def __init__(self, CHROMOSOME_SIZE=30, randomizeChr=False):
         self.fitness = 0
         self.chromosome = [0] * CHROMOSOME_SIZE
         if randomizeChr:
@@ -78,9 +78,11 @@ class interactive_evolution():
         else:
             print('Sending genotypes to PD to be played.')
             for individual in self.population:
-                #send2port(' '.join([str(char) for char in individual.chromosome]))
-                send2port_socket(' '.join([str(char) for char in individual.chromosome]))
+                print(' '.join([str(char) for char in individual.chromosome]))
+                send2port(' '.join([str(char) for char in individual.chromosome]))
+                #send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
                 time.sleep(5)
+                # go to 'other program for 5 seconds'
             return
 
 
@@ -100,7 +102,7 @@ class interactive_evolution():
             return False
         return True
 
-    # Container function for the reproduction methods
+    # Container function for the reproduction methods-
     def reproducePopulation(self):
         offspring = self.selectAndReproduce()
         self.replacePopulation(offspring)
