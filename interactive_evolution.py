@@ -2,8 +2,8 @@ import random
 import os
 import pyglet
 from send_to_pd import send2port, send2port_socket_other
+from keypoller import KeyPoller
 import time
-
 
 class Genome():
 
@@ -81,10 +81,21 @@ class interactive_evolution():
                 print(' '.join([str(char) for char in individual.chromosome]))
                 send2port(' '.join([str(char) for char in individual.chromosome]))
                 #send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
-                time.sleep(5)
-                # go to 'other program for 5 seconds'
+                
+                fitness = self.keyLogger()
+                print(fitness)
             return
 
+    def keyLogger(self):
+        t = time.time()
+        s = ''
+        with KeyPoller() as keyPoller:
+            # For 5 seconds look for keyboard input
+            while time.time() < t + 5.0:
+                c = keyPoller.poll()
+                if c is not None:
+                    s += c
+        return s
 
     def evaluate_fitness(self):
         self.getPhenotypes()
