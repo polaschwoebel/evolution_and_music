@@ -4,6 +4,7 @@ import pyglet
 from send_to_pd import send2port, send2port_socket_other
 from keypoller import KeyPoller
 import time
+from evaluation_wheel import transcribe_input
 
 class Genome():
 
@@ -20,7 +21,10 @@ class Genome():
 
     # Override the print function
     def __repr__(self):
-        return str([self.fitness, self.getPhenotype()])
+        #return str([self.fitness, self.getPhenotype()])
+        # individual doesn't have getPhenotype()
+        return str(self.fitness)
+
 
     # Mutate the chromosome
     def mutate(self):
@@ -52,8 +56,10 @@ class interactive_evolution():
     # Print info about the generation
     def generateStatistics(self):
         self.write_population_to_file()
-        # TODO
-        print("Fittest individuals in generation: " + str(self.fittest))
+        # this doesn't work because we reorder the population list so can't get the index
+        #print("Fittest individuals in generation: " +
+        #      str([self.population.index(ind) for ind in self.fittest]) + '. Their fitnesses are' + str(self.fittest))
+        print('The highest fitnesses in this generation are' + str(self.fittest))
 
     # Helper function to write genotypes to file
     def write_population_to_file(self):
@@ -77,13 +83,15 @@ class interactive_evolution():
             return
         else:
             print('Sending genotypes to PD to be played.')
-            for individual in self.population:
-                print(' '.join([str(char) for char in individual.chromosome]))
+            for i, individual in enumerate(self.population):
+                print('Evaluating individual number %s.' %(i+1))
+                #print(' '.join([str(char) for char in individual.chromosome]))
                 send2port(' '.join([str(char) for char in individual.chromosome]))
                 #send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
-                
+
                 fitness = self.keyLogger()
                 print(fitness)
+                individual.fitness = transcribe_input(fitness)
             return
 
     def keyLogger(self):
@@ -99,9 +107,10 @@ class interactive_evolution():
 
     def evaluate_fitness(self):
         self.getPhenotypes()
-        best_1 = int(input('Which piece sounded best?'))
-        best_2 = int(input('Which second piece did you like?'))
-        self.fittest = [best_1, best_2]
+        self.population.sort(key=lambda x: x.fitness, reverse=True)
+        #best_1 = int(input('Which piece sounded best?'))
+        #best_2 = int(input('Which second piece did you like?'))
+        self.fittest = self.population[:2]
 
 
     # evaluates fitness and checks whether max generations are reached
@@ -121,7 +130,7 @@ class interactive_evolution():
 
     # Choose which of the population to reproduce and return the offspring
     def selectAndReproduce(self):
-        offspring = self.reproduce(self.population[self.fittest[0]], self.population[self.fittest[1]])
+        offspring = self.reproduce(self.fittest[0], self.fittest[1])
         return offspring
 
     # Reproduce the parents and return offspring
