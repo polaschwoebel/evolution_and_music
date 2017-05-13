@@ -1,7 +1,7 @@
 import random
 import os
 import pyglet
-from send_to_pd import send2port, send2port_socket_other
+from send_to_pd import send2port, send2port_socket
 from keypoller import KeyPoller
 import time
 from evaluation_wheel import transcribe_input
@@ -86,8 +86,8 @@ class interactive_evolution():
             for i, individual in enumerate(self.population):
                 print('Evaluating individual number %s.' %(i+1))
                 #print(' '.join([str(char) for char in individual.chromosome]))
-                send2port(' '.join([str(char) for char in individual.chromosome]))
-                #send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
+                #send2port(' '.join([str(char) for char in individual.chromosome]))
+                send2port_socket(' '.join([str(char) for char in individual.chromosome]))
 
                 fitness = self.keyLogger()
                 print(fitness)
