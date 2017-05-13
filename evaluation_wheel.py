@@ -1,5 +1,3 @@
-
-
 def transcribe_input(input_string):
     score = 0
     for i in input_string:
