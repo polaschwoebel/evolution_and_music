@@ -3,6 +3,6 @@ def transcribe_input(input_string):
     for i in input_string:
         if i == '-':
             score -= 1
-        if i == '+':
+        if i == '+' or i == '=':
             score += 1
     return score
