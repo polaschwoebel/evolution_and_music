@@ -18,7 +18,7 @@ def send2port_socket(data):
     #s.listen(1)
     conn, addr = s.accept()
     print('Connection address:', addr)
-    conn.send(data)
+    conn.send(data + ';')
     conn.close()
 
 

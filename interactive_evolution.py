@@ -1,10 +1,12 @@
 import random
 import os
 import pyglet
-from send_to_pd import send2port, send2port_socket_other
+from send_to_pd import send2port, send2port_socket
 from keypoller import KeyPoller
 import time
 from evaluation_wheel import transcribe_input
+from fitness_function import fit_pca, pca_fitness
+
 
 class Genome():
 
@@ -35,7 +37,7 @@ class interactive_evolution():
 
     # Initialise the genetic algorithm with some default values
     # Create the population of genomes with random chromosomes
-    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=15, MAX_GENERATION=5):
+    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=50, MAX_GENERATION=15):
         self.population = [Genome(randomizeChr=True) for _ in range(POPULATION_SIZE)]
         self.ELITISM_PERCENTAGE = ELITISM_PERCENTAGE
         self.MUTATION_PERCENTAGE = MUTATION_PERCENTAGE
@@ -59,7 +61,7 @@ class interactive_evolution():
         # this doesn't work because we reorder the population list so can't get the index
         #print("Fittest individuals in generation: " +
         #      str([self.population.index(ind) for ind in self.fittest]) + '. Their fitnesses are' + str(self.fittest))
-        print('The highest fitnesses in this generation are' + str(self.fittest))
+        print('The highest fitnesses in this generation are ' + str(self.fittest))
 
     # Helper function to write genotypes to file
     def write_population_to_file(self):
@@ -69,30 +71,29 @@ class interactive_evolution():
         return
 
     # Return the phenotype
-    def getPhenotypes(self, read_from_file=False):
-        if read_from_file:
-            files = os.listdir("examples")
-            # ATTENTION on file order! make sure file<->genotype indes
-            for file in files:
-                if file.endswith('.wav'):
-                    music = pyglet.resource.media('examples/' + file)
-                    music.play()
-                    # foo.duration is the song length
-                    pyglet.clock.schedule_once(exiter, music.duration)
-                    pyglet.app.run()
-            return
-        else:
+    def getPhenotypes(self):
+        human_evaluation = (self.curr_generation % 10 == 0)
+        if human_evaluation:
             print('Sending genotypes to PD to be played.')
             for i, individual in enumerate(self.population):
                 print('Evaluating individual number %s.' %(i+1))
-                #print(' '.join([str(char) for char in individual.chromosome]))
+                # print(' '.join([str(char) for char in individual.chromosome]))
                 send2port(' '.join([str(char) for char in individual.chromosome]))
-                #send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
+                # send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
 
                 fitness = self.keyLogger()
                 print(fitness)
                 individual.fitness = transcribe_input(fitness)
             return
+        else:
+            pca, indices = fit_pca(self.population)
+            print(pca, indices)
+            for individual in self.population:
+                individual.fitness = pca_fitness(individual, pca, indices)
+                print(individual.fitness)
+
+            return
+
 
     def keyLogger(self):
         t = time.time()
