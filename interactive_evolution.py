@@ -77,10 +77,9 @@ class interactive_evolution():
             print('Sending genotypes to PD to be played.')
             for i, individual in enumerate(self.population):
                 print('Evaluating individual number %s.' %(i+1))
-                # print(' '.join([str(char) for char in individual.chromosome]))
-                send2port(' '.join([str(char) for char in individual.chromosome]))
-                # send2port_socket_other(' '.join([str(char) for char in individual.chromosome]))
-
+                #print(' '.join([str(char) for char in individual.chromosome]))
+                #send2port(' '.join([str(char) for char in individual.chromosome]))
+                send2port_socket(' '.join([str(char) for char in individual.chromosome]))
                 fitness = self.keyLogger()
                 print(fitness)
                 individual.fitness = transcribe_input(fitness)
