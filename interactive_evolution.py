@@ -37,7 +37,7 @@ class interactive_evolution():
 
     # Initialise the genetic algorithm with some default values
     # Create the population of genomes with random chromosomes
-    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=50, MAX_GENERATION=15):
+    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=50, MAX_GENERATION=100):
         self.population = [Genome(randomizeChr=True) for _ in range(POPULATION_SIZE)]
         self.ELITISM_PERCENTAGE = ELITISM_PERCENTAGE
         self.MUTATION_PERCENTAGE = MUTATION_PERCENTAGE
@@ -137,9 +137,9 @@ class interactive_evolution():
     def reproduce(self, parent1, parent2):
         # TODO: Decide how to reproduce
         offspring1 = Genome()
-        offspring1.chromosome = parent1.chromosome[:5] + parent2.chromosome[5:]
+        offspring1.chromosome = parent1.chromosome[:7] + parent2.chromosome[7:]
         offspring2 = Genome()
-        offspring2.chromosome = parent2.chromosome[:5] + parent1.chromosome[5:]
+        offspring2.chromosome = parent2.chromosome[:7] + parent1.chromosome[7:]
         return [offspring1, offspring2]
 
     # Replaces some of the existing population with the offspring

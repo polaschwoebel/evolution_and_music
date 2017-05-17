@@ -17,7 +17,7 @@ else
 fi
 
 echo 'Starting PureData...'
-$PD_DIR pure_data/EVOLUTION_ALL_PATCHES-GENOME-INPUT-TEST.pd &
+$PD_DIR pure_data/EVOLUTION_ALL_PATCHES-RESTORED-16.5..pd &
 echo 'Press enter to continue once PureData is ready'
 read enter
 echo 'Starting Python...'
