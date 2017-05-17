@@ -5,12 +5,13 @@ from keypoller import KeyPoller
 import time
 from evaluation_wheel import transcribe_input
 from fitness_function import fit_pca, pca_fitness
+import pickle
 
 
 class Genome():
 
     # Initialise the genome (possibly as random chromosomes)
-    def __init__(self, CHROMOSOME_SIZE=40, randomizeChr=False):
+    def __init__(self, CHROMOSOME_SIZE=73, randomizeChr=False):
         self.fitness = 0
         self.chromosome = [0] * CHROMOSOME_SIZE
         if randomizeChr:
@@ -39,7 +40,7 @@ class interactive_evolution():
 
     # Initialise the genetic algorithm with some default values
     # Create the population of genomes with random chromosomes
-    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=50, MAX_GENERATION=100):
+    def __init__(self, POPULATION_SIZE=5, ELITISM_PERCENTAGE=20, MUTATION_PERCENTAGE=50, MAX_GENERATION=10):
         self.population = [Genome(randomizeChr=True) for _ in range(POPULATION_SIZE)]
         self.ELITISM_PERCENTAGE = ELITISM_PERCENTAGE
         self.MUTATION_PERCENTAGE = MUTATION_PERCENTAGE
@@ -52,29 +53,32 @@ class interactive_evolution():
     def executeEvolution(self):
         print("Starting evolution...")
         while(self.continueEvolution()):
-            self.generateStatistics()
+            print(self.curr_generation)
+            self.generateStatistics(self.curr_generation)
             self.reproducePopulation()
-        self.generateStatistics()
+        self.generateStatistics(self.curr_generation)
         print("Finished evolution")
 
     # Print info about the generation
-    def generateStatistics(self):
-        self.write_population_to_file()
+    def generateStatistics(self, generation):
+        self.write_population_to_file(generation)
         # this doesn't work because we reorder the population list so can't get the index
         #print("Fittest individuals in generation: " +
         #      str([self.population.index(ind) for ind in self.fittest]) + '. Their fitnesses are' + str(self.fittest))
         print('The highest fitnesses in this generation are ' + str(self.fittest))
 
     # Helper function to write genotypes to file
-    def write_population_to_file(self):
-        with open("genotypes/individuals.txt", "w") as file:
-            for i, individual in enumerate(self.population):
-                file.write(' '.join([str(char) for char in individual.chromosome]) + '\n')
-        return
+    def write_population_to_file(self, generation):
+        all_inds = []
+        for i, individual in enumerate(self.population):
+            all_inds.append(individual.chromosome)
+        with open("genotypes_purely_interactive/individuals_%s.p"%generation, "wb") as file:
+            pickle.dump(all_inds, file)
 
     # Return the phenotype
     def getPhenotypes(self):
-        human_evaluation = (self.curr_generation % 10 == 0)
+        #human_evaluation = (self.curr_generation % 10 == 0)
+        human_evaluation = True
         if human_evaluation:
             print('Sending genotypes to PD to be played.')
             for i, individual in enumerate(self.population):
