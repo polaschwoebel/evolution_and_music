@@ -1,6 +1,5 @@
 import random
 import os
-import pyglet
 from send_to_pd import send2port, send2port_socket
 from keypoller import KeyPoller
 import time
@@ -11,7 +10,7 @@ from fitness_function import fit_pca, pca_fitness
 class Genome():
 
     # Initialise the genome (possibly as random chromosomes)
-    def __init__(self, CHROMOSOME_SIZE=30, randomizeChr=False):
+    def __init__(self, CHROMOSOME_SIZE=40, randomizeChr=False):
         self.fitness = 0
         self.chromosome = [0] * CHROMOSOME_SIZE
         if randomizeChr:
@@ -30,8 +29,11 @@ class Genome():
 
     # Mutate the chromosome
     def mutate(self):
-        # TODO: decide how to mutate the chromosome properly
-        self.chromosome[random.randint(0, 9)] = random.randint(0, 1)
+        self.chromosome[random.randint(0, 7)] = random.randint(0, 128)
+        self.chromosome[random.randint(7, 22)] = random.randint(0, 128)
+        if random.randint(0, 99) < 20:
+            self.chromosome[random.randint(22, 23)] = random.randint(0, 128)
+        self.chromosome[random.randint(23, len(self.chromosome) - 1)] = random.randint(0, 128)
 
 class interactive_evolution():
 
@@ -134,18 +136,22 @@ class interactive_evolution():
         return offspring
 
     # Reproduce the parents and return offspring
-    def reproduce(self, parent1, parent2):
-        # TODO: Decide how to reproduce
-        offspring1 = Genome()
-        offspring1.chromosome = parent1.chromosome[:7] + parent2.chromosome[7:]
-        offspring2 = Genome()
-        offspring2.chromosome = parent2.chromosome[:7] + parent1.chromosome[7:]
-        return [offspring1, offspring2]
+    def reproduce(self, *parents):
+        offspring = []
+        for i in range(2):
+            child = Genome()
+            child.chromosome = random.choice(parents).chromosome[:7] + random.choice(parents).chromosome[7:22] + random.choice(parents).chromosome[22:23] + random.choice(parents).chromosome[23:]
+            offspring.append(child)
+
+        genotypes = ["".join([str(c) for c in individual.chromosome]) for individual in self.population]
+        for child in offspring:
+            while "".join([str(c) for c in child.chromosome]) in genotypes:
+                child.mutate()
+
+        return offspring
 
     # Replaces some of the existing population with the offspring
     def replacePopulation(self, offspring):
-        # TODO: Decide how to choose the members of the population to be replaced
-        # - probably "randomly"/as is in non-interactive setting
         numOffspring = len(offspring)
         self.population = self.population[:-numOffspring] + offspring
 
@@ -161,11 +167,6 @@ class interactive_evolution():
             individual.mutate()
             return True
         return False
-
-
-# helper for pyglet (i.o. to play snippets)
-def exiter(dt):
-    pyglet.app.exit()
 
 
 def main():
