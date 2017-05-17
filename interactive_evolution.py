@@ -10,7 +10,7 @@ from fitness_function import fit_pca, pca_fitness
 class Genome():
 
     # Initialise the genome (possibly as random chromosomes)
-    def __init__(self, CHROMOSOME_SIZE=30, randomizeChr=False):
+    def __init__(self, CHROMOSOME_SIZE=40, randomizeChr=False):
         self.fitness = 0
         self.chromosome = [0] * CHROMOSOME_SIZE
         if randomizeChr:
