@@ -7,9 +7,9 @@
 
 PD_DIR=''
 
-if [ "$1" == 'maire' ] || [ "$1" == 'm' ]; then
+if [ "$1" == 'm' ]; then
     PD_DIR='/Applications/Pd.app/Contents/MacOS/Pd'
-elif [ "$1" == 'pola' ] || [ "$1" == 'p' ]; then
+elif [ "$1" == 'p' ]; then
     PD_DIR='/Applications/Pd-0.47-1-64bit.app/Contents/MacOS/Pd'
 else
     echo 'Please enter the location of the Pure Data application:'
