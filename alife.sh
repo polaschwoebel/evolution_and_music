@@ -12,12 +12,12 @@ if [ "$1" == 'maire' ] || [ "$1" == 'm' ]; then
 elif [ "$1" == 'pola' ] || [ "$1" == 'p' ]; then
     PD_DIR='/Applications/Pd-0.47-1-64bit.app/Contents/MacOS/Pd'
 else
-    echo 'Please specify a user'
-    exit 1
+    echo 'Please enter the location of the Pure Data application:'
+    read PD_DIR
 fi
 
 echo 'Starting PureData...'
-$PD_DIR pure_data/EVOLUTION_ALL_PATCHES-RESTORED-16.5..pd &
+$PD_DIR pure_data/EVOLUTION_ALL_PATCHES-LIVE-INPUT.pd &
 echo 'Press enter to continue once PureData is ready'
 read enter
 echo 'Starting Python...'
